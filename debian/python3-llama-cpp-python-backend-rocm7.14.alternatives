@@ -1,0 +1,4 @@
+Name: llama-cpp-python-rocm
+Link: /usr/lib/python3/dist-packages/llama_cpp/lib/libggml-hip.so
+Alternative: /usr/lib/python3/dist-packages/llama_cpp/lib/backends/rocm7.14/libggml-hip.so
+Priority: 714

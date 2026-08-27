@@ -1,0 +1,4 @@
+Name: llama-cpp-python-cuda
+Link: /usr/lib/python3/dist-packages/llama_cpp/lib/libggml-cuda.so
+Alternative: /usr/lib/python3/dist-packages/llama_cpp/lib/backends/cuda12.4/libggml-cuda.so
+Priority: 124
