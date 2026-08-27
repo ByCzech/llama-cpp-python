@@ -114,7 +114,7 @@ sudo apt update
 
 The Debian packaging files are maintained separately from the upstream Python package functionality and are intended to provide clean system integration, dependency handling and reproducible backend builds.
 
-**Debian packaging author / maintainer:** `YOUR NAME <your@email.example>`
+**Debian packaging author / maintainer:** `ByCzech`
 
 > The original `llama-cpp-python` project is developed and maintained by its upstream authors. The Debian packaging additions in this repository are maintained independently.
 
