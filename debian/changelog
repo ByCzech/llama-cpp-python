@@ -1,4 +1,4 @@
-llama-cpp-python (0:0.3.35-2) stable; urgency=medium
+llama-cpp-python (0:0.3.35-3) stable; urgency=medium
 
   * Start new split-package layout.
   * Add core package and dynamically dispatched CPU backend package.

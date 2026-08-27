@@ -425,7 +425,8 @@ override_dh_shlibdeps:
 	# runtime libraries from Debian.
 	dh_shlibdeps -p$(CUDA124_PACKAGE) \
 		-L$(CORE_PACKAGE) \
-		-l/$(PYLIB_DIR):$(DEB_SYSTEM_LIBDIR)
+		-l/$(PYLIB_DIR):$(DEB_SYSTEM_LIBDIR) \
+		-- -Ldebian/shlibs.cuda12
 
 	# NVIDIA CUDA toolkits are installed side-by-side under /usr/local.
 	# dh_shlibdeps accepts one -l option containing a colon-separated path list.
@@ -434,12 +435,12 @@ override_dh_shlibdeps:
 	dh_shlibdeps -p$(CUDA129_PACKAGE) \
 		-L$(CORE_PACKAGE) \
 		-l/$(PYLIB_DIR):$(CUDA129_ROOT)/targets/x86_64-linux/lib \
-		-- --ignore-missing-info
+		-- -Ldebian/shlibs.cuda12 --ignore-missing-info
 
 	dh_shlibdeps -p$(CUDA133_PACKAGE) \
 		-L$(CORE_PACKAGE) \
 		-l/$(PYLIB_DIR):$(CUDA133_ROOT)/targets/x86_64-linux/lib \
-		-- --ignore-missing-info
+		-- -Ldebian/shlibs.cuda13 --ignore-missing-info
 
 	# ROCm Core SDK 7.14 is an external versioned runtime under /opt.  Keep
 	# explicit runtime/BLAS Depends in debian/control and still let shlibdeps
