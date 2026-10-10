@@ -1,0 +1,4 @@
+Name: llama-cpp-python-sycl
+Link: /usr/lib/python3/dist-packages/llama_cpp/lib/libggml-sycl.so
+Alternative: /usr/lib/python3/dist-packages/llama_cpp/lib/backends/sycl/libggml-sycl.so
+Priority: 100
