@@ -1,3 +1,11 @@
+llama-cpp-python (0:0.3.36-4) stable; urgency=medium
+
+  * Exclude gfx1250 from the ROCm 10.1 backend: the vendored GGML uses
+    unsupported dot2 and gfx12 WMMA instructions for this target.
+  * Retain all other 24 HIP targets, including gfx908 for MI100.
+
+ -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 01:55:00 +0200
+
 llama-cpp-python (0:0.3.36-3) stable; urgency=medium
 
   * Escape regex end anchors in the ROCm SDK and HIP version checks so
