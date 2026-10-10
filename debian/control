@@ -1,0 +1,255 @@
+Source: llama-cpp-python
+Section: python
+Priority: optional
+Maintainer: NemaChybu team APT archive <maintainers@nemachybu.cz>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ python3-all,
+ python3-all-dev,
+ python3-setuptools,
+ python3-pip,
+ python3-wheel,
+ python3-scikit-build-core (>= 0.9.2),
+ cmake,
+ ninja-build,
+ pkg-config,
+ libopenblas-dev,
+ libvulkan-dev,
+ glslc,
+ spirv-headers,
+ nvidia-cuda-toolkit,
+ cuda-toolkit-12-9,
+ cuda-toolkit-13-3,
+ amdrocm-core-sdk7.14,
+ g++,
+ intel-oneapi-compiler-dpcpp-cpp,
+ intel-oneapi-mkl-sycl-devel,
+ intel-oneapi-dnnl-devel,
+ intel-oneapi-tbb-devel,
+ libze-dev,
+ patchelf
+Build-Conflicts:
+ libamdhip64-dev
+Standards-Version: 4.7.2
+Homepage: https://github.com/abetlen/llama-cpp-python
+Rules-Requires-Root: no
+
+Package: python3-llama-cpp-python
+Architecture: all
+Depends:
+ python3-llama-cpp-python-core (= ${binary:Version}),
+ python3-llama-cpp-python-backend-cpu (= ${binary:Version}),
+ ${misc:Depends}
+Recommends: python3-starlette-context (>= 0.5.1)
+Description: Python bindings for llama.cpp (default runtime)
+ This package installs the llama-cpp-python runtime together with the
+ dynamically selected CPU backend.
+ .
+ Optional accelerator backends are provided by separate packages.
+
+Package: python3-llama-cpp-python-core
+Architecture: any
+Breaks:
+ python3-llama-cpp-cpu-generic (<< ${binary:Version}),
+ python3-llama-cpp-cpu-avx (<< ${binary:Version}),
+ python3-llama-cpp-cpu-avx2 (<< ${binary:Version}),
+ python3-llama-cpp-cpu-avx512 (<< ${binary:Version}),
+ python3-llama-cpp-vulkan (<< ${binary:Version}),
+ python3-llama-cpp-cuda (<< ${binary:Version})
+Replaces:
+ python3-llama-cpp-cpu-generic (<< ${binary:Version}),
+ python3-llama-cpp-cpu-avx (<< ${binary:Version}),
+ python3-llama-cpp-cpu-avx2 (<< ${binary:Version}),
+ python3-llama-cpp-cpu-avx512 (<< ${binary:Version}),
+ python3-llama-cpp-vulkan (<< ${binary:Version}),
+ python3-llama-cpp-cuda (<< ${binary:Version})
+Depends:
+ ${python3:Depends},
+ ${shlibs:Depends},
+ ${misc:Depends},
+ python3-numpy,
+ python3-diskcache,
+ python3-jinja2,
+ python3-typing-extensions
+Description: Python bindings for llama.cpp - core runtime
+ This package contains the Python modules and common llama.cpp/ggml shared
+ libraries. Hardware-specific backends are packaged separately.
+
+Package: python3-llama-cpp-python-backend-cpu
+Architecture: any
+Breaks:
+ python3-llama-cpp-vulkan (<< ${binary:Version}),
+ python3-llama-cpp-cuda (<< ${binary:Version})
+Replaces:
+ python3-llama-cpp-vulkan (<< ${binary:Version}),
+ python3-llama-cpp-cuda (<< ${binary:Version})
+Depends:
+ python3-llama-cpp-python-core (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic CPU backend
+ This package contains dynamically selected CPU backends for llama-cpp-python.
+ On x86-64, llama.cpp selects the best supported implementation at runtime.
+
+Package: python3-llama-cpp-python-backend-vulkan
+Architecture: any
+Breaks:
+ python3-llama-cpp-vulkan (<< ${binary:Version})
+Replaces:
+ python3-llama-cpp-vulkan (<< ${binary:Version})
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic Vulkan backend
+ This package contains the dynamically loadable Vulkan backend for
+ llama-cpp-python. The Vulkan loader runtime is pulled in through shared
+ library dependencies.
+
+Package: python3-llama-cpp-python-backend-cuda12.4
+Architecture: any
+Provides: python3-llama-cpp-python-backend-cuda (= ${binary:Version})
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic CUDA 12.4 backend
+ This package contains the dynamically loadable CUDA backend for
+ llama-cpp-python, built with the CUDA 12.4 toolkit from Debian Trixie.
+ Multiple versioned CUDA backend packages may be installed in parallel;
+ update-alternatives selects the default CUDA backend.
+
+Package: python3-llama-cpp-python-backend-cuda12.9
+Architecture: any
+Provides: python3-llama-cpp-python-backend-cuda (= ${binary:Version})
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ cuda-cudart-12-9,
+ libcublas-12-9,
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic CUDA 12.9 backend
+ This package contains the dynamically loadable CUDA backend for
+ llama-cpp-python, built with the NVIDIA CUDA 12.9 toolkit.
+ Multiple versioned CUDA backend packages may be installed in parallel;
+ update-alternatives selects the default CUDA backend.
+
+Package: python3-llama-cpp-python-backend-cuda13.3
+Architecture: any
+Provides: python3-llama-cpp-python-backend-cuda (= ${binary:Version})
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ cuda-cudart-13-3,
+ libcublas-13-3,
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic CUDA 13.3 backend
+ This package contains the dynamically loadable CUDA backend for
+ llama-cpp-python, built with the NVIDIA CUDA 13.3 toolkit.
+ Multiple versioned CUDA backend packages may be installed in parallel;
+ update-alternatives selects the default CUDA backend.
+
+Package: python3-llama-cpp-python-backend-rocm7.14
+Architecture: amd64
+Provides: python3-llama-cpp-python-backend-rocm (= ${binary:Version})
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ amdrocm-runtime7.14,
+ amdrocm-blas7.14,
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic ROCm 7.14 HIP backend
+ This package contains the dynamically loadable HIP backend for
+ llama-cpp-python, built with AMD ROCm Core SDK 7.14.  It contains code
+ objects for a broad set of GCN, RDNA and CDNA targets.  Unsupported Vega
+ APUs may also be usable with HSA_OVERRIDE_GFX_VERSION where compatible.
+ Multiple versioned ROCm backend packages may be installed in parallel;
+ update-alternatives selects the default ROCm backend.
+
+Package: python3-llama-cpp-python-backend-sycl
+Architecture: amd64
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ intel-oneapi-compiler-dpcpp-cpp-runtime,
+ intel-oneapi-mkl-sycl-blas,
+ intel-oneapi-dnnl,
+ intel-oneapi-tbb,
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: llama-cpp-python dynamic Intel SYCL backend
+ This package contains the dynamically loadable SYCL backend for
+ llama-cpp-python, built with Intel oneAPI DPC++/C++.  It targets Intel
+ GPUs through SYCL/Level Zero, uses FP16 kernels, oneMKL SYCL BLAS and
+ oneDNN, and keeps the backend separate from the common Python runtime.
+
+Package: python3-llama-cpp
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for python3-llama-cpp-python
+ This package is provided for a smooth upgrade to the new package layout.
+ It can be safely removed after the upgrade.
+
+Package: python3-llama-cpp-cpu-generic
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for python3-llama-cpp-python
+ This package is provided for a smooth upgrade from the old generic CPU build.
+ It can be safely removed after the upgrade.
+
+Package: python3-llama-cpp-cpu-avx
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for python3-llama-cpp-python
+ This package is provided for a smooth upgrade from the old AVX CPU build.
+ It can be safely removed after the upgrade.
+
+Package: python3-llama-cpp-cpu-avx2
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for python3-llama-cpp-python
+ This package is provided for a smooth upgrade from the old AVX2 CPU build.
+ It can be safely removed after the upgrade.
+
+Package: python3-llama-cpp-cpu-avx512
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for python3-llama-cpp-python
+ This package is provided for a smooth upgrade from the old AVX512 CPU build.
+ It can be safely removed after the upgrade.
+
+Package: python3-llama-cpp-vulkan
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python-backend-vulkan (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for llama-cpp-python Vulkan backend
+ This package is provided for a smooth upgrade from the old Vulkan build.
+ It can be safely removed after the upgrade.
+
+Package: python3-llama-cpp-cuda
+Architecture: any
+Section: oldlibs
+Depends:
+ python3-llama-cpp-python-backend-cuda12.4 (= ${binary:Version}),
+ ${misc:Depends}
+Description: transitional package for llama-cpp-python CUDA backend
+ This package is provided for a smooth upgrade from the old CUDA build.
+ It installs the Debian Trixie CUDA 12.4 backend and can be safely removed
+ after the upgrade.
