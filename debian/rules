@@ -238,8 +238,8 @@ override_dh_auto_install:
 	test -f $(ROCM101_CMAKE_DIR)/hipblas/hipblas-config.cmake
 	test -f $(ROCM101_CMAKE_DIR)/rocblas/rocblas-config.cmake
 	# SDK version and HIP component version have different numbering.
-	grep -Eq '^10\.1([.]|$)' $(ROCM101_ROOT)/.info/version
-	$(ROCM101_ROOT)/bin/hipconfig --version | grep -Eq '(^|[^0-9])7\.16([.]|[^0-9]|$)'
+	grep -Eq '^10\.1([.]|$$)' $(ROCM101_ROOT)/.info/version
+	$(ROCM101_ROOT)/bin/hipconfig --version | grep -Eq '(^|[^0-9])7\.16([.]|[^0-9]|$$)'
 
 	# Cheap compiler smoke test before the expensive multi-architecture build.
 	mkdir -p $(ROCM101_BUILD_DIR)
