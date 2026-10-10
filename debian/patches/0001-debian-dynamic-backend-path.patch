@@ -10,7 +10,7 @@ Forwarded: not-needed
 
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -4,6 +4,7 @@ project(llama_cpp)
+@@ -4,6 +4,7 @@
  
  option(LLAMA_BUILD "Build llama.cpp shared library and install alongside python package" ON)
  option(LLAVA_BUILD "Build llava shared library and install alongside python package" ON)
@@ -18,7 +18,7 @@ Forwarded: not-needed
  
  function(llama_cpp_python_install_target target)
      if(NOT TARGET ${target})
-@@ -17,7 +18,7 @@ function(llama_cpp_python_install_target target)
+@@ -16,7 +17,7 @@
          )
      endif()
  
@@ -27,7 +27,7 @@ Forwarded: not-needed
          install(
              TARGETS ${target}
              LIBRARY DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/llama_cpp/lib
-@@ -62,6 +63,16 @@ if (LLAMA_BUILD)
+@@ -67,6 +68,16 @@
      set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
      set(CMAKE_SKIP_RPATH FALSE)
  
@@ -44,10 +44,11 @@ Forwarded: not-needed
      # Enable building of the common library
      set(LLAMA_BUILD_COMMON ON CACHE BOOL "Build llama.cpp common library" FORCE)
  
-@@ -120,6 +131,14 @@ if (LLAMA_BUILD)
+@@ -132,6 +143,14 @@
+ 
  
      add_subdirectory(vendor/llama.cpp)
- 
++
 +    # Do not set the GGML_BACKEND_DIR CMake cache variable here: upstream also
 +    # uses it as an install destination. Define only the runtime loader macro,
 +    # so installed libggml.so searches Debian's package-local backend directory.
@@ -55,7 +56,6 @@ Forwarded: not-needed
 +        target_compile_definitions(ggml PRIVATE
 +            GGML_BACKEND_DIR="/usr/lib/python3/dist-packages/llama_cpp/lib")
 +    endif()
-+
+ 
      if (WIN32)
          if (TARGET llama)
-             set_target_properties(llama PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)

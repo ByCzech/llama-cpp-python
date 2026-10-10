@@ -4,6 +4,7 @@ project(llama_cpp)
 
 option(LLAMA_BUILD "Build llama.cpp shared library and install alongside python package" ON)
 option(LLAVA_BUILD "Build llava shared library and install alongside python package" ON)
+option(LLAMA_CPP_PYTHON_DEBIAN_BUILD "Use Debian package installation layout" OFF)
 
 function(llama_cpp_python_install_target target)
     if(NOT TARGET ${target})
@@ -16,7 +17,7 @@ function(llama_cpp_python_install_target target)
         )
     endif()
 
-    if(NOT EMSCRIPTEN)
+    if(NOT EMSCRIPTEN AND NOT LLAMA_CPP_PYTHON_DEBIAN_BUILD)
         install(
             TARGETS ${target}
             LIBRARY DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/llama_cpp/lib
@@ -66,6 +67,16 @@ if (LLAMA_BUILD)
     # which point to directories outside the build tree to the install RPATH
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
     set(CMAKE_SKIP_RPATH FALSE)
+
+    # GGML_BACKEND_DL installs generated backend modules through
+    # CMAKE_INSTALL_BINDIR. Point dynamic backends and the normal llama.cpp
+    # library install rules at the same package-local directory. Without the
+    # LIBDIR override, scikit-build also stages a duplicate copy in
+    # ${SKBUILD_PLATLIB_DIR}/lib.
+    if (GGML_BACKEND_DL)
+        set(CMAKE_INSTALL_BINDIR "${SKBUILD_PLATLIB_DIR}/llama_cpp/lib" CACHE PATH "Install dynamic GGML backends" FORCE)
+        set(CMAKE_INSTALL_LIBDIR  "${SKBUILD_PLATLIB_DIR}/llama_cpp/lib" CACHE PATH "Install llama.cpp libraries" FORCE)
+    endif()
 
     # Enable building of the common library
     set(LLAMA_BUILD_COMMON ON CACHE BOOL "Build llama.cpp common library" FORCE)
@@ -132,6 +143,14 @@ if (LLAMA_BUILD)
 
 
     add_subdirectory(vendor/llama.cpp)
+
+    # Do not set the GGML_BACKEND_DIR CMake cache variable here: upstream also
+    # uses it as an install destination. Define only the runtime loader macro,
+    # so installed libggml.so searches Debian's package-local backend directory.
+    if (GGML_BACKEND_DL AND TARGET ggml)
+        target_compile_definitions(ggml PRIVATE
+            GGML_BACKEND_DIR="/usr/lib/python3/dist-packages/llama_cpp/lib")
+    endif()
 
     if (WIN32)
         if (TARGET llama)
