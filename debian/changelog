@@ -16,7 +16,7 @@ llama-cpp-python (0:0.3.36-6) stable; urgency=medium
   * Match the unique RDNA4 predicate without unrelated GCN/CDNA context,
     preserving the GCN/CDNA predicates supplied by either upstream revision.
 
- -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 02:48:00 +0200
+ -- NemaChybu team APT archive <maintainers@nemachybu.cz>  Sun, 11 Oct 2026 02:48:00 +0200
 
 llama-cpp-python (0:0.3.36-5) stable; urgency=medium
 
@@ -25,7 +25,7 @@ llama-cpp-python (0:0.3.36-5) stable; urgency=medium
   * Use FP32 arithmetic for its FP16 dot2 fallback; retain hipBLAS hardware
     matrix support without enabling incompatible custom GGML WMMA kernels.
 
- -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 02:20:00 +0200
+ -- NemaChybu team APT archive <maintainers@nemachybu.cz>  Sun, 11 Oct 2026 02:20:00 +0200
 
 llama-cpp-python (0:0.3.36-4) stable; urgency=medium
 
@@ -33,14 +33,14 @@ llama-cpp-python (0:0.3.36-4) stable; urgency=medium
     unsupported dot2 and gfx12 WMMA instructions for this target.
   * Retain all other 24 HIP targets, including gfx908 for MI100.
 
- -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 01:55:00 +0200
+ -- NemaChybu team APT archive <maintainers@nemachybu.cz>  Sun, 11 Oct 2026 01:55:00 +0200
 
 llama-cpp-python (0:0.3.36-3) stable; urgency=medium
 
   * Escape regex end anchors in the ROCm SDK and HIP version checks so
     make passes the complete expressions to grep.
 
- -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 01:15:48 +0200
+ -- NemaChybu team APT archive <maintainers@nemachybu.cz>  Sun, 11 Oct 2026 01:15:48 +0200
 
 llama-cpp-python (0:0.3.36-2) stable; urgency=medium
 
