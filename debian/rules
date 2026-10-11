@@ -74,6 +74,13 @@ override_dh_auto_test:
 	:
 
 override_dh_auto_install:
+	# Upstream 0.3.36 bindings require this C API. Check the actual source
+	# headers too, so an outdated checkout or orig tarball fails immediately.
+	grep -q 'llama_adapter_lora_init_from_file_ptr' vendor/llama.cpp/include/llama.h || { \
+		echo "llama-cpp-python 0.3.36 requires vendored llama.cpp 0c1e57098bba43ac29e6e3b677cdceebdd22334f; update the submodule and orig source archive" >&2; \
+		exit 1; \
+	}
+
 	rm -rf debian/$(CORE_PACKAGE) debian/$(CPU_PACKAGE) debian/$(VULKAN_PACKAGE) \
 		debian/$(CUDA124_PACKAGE) debian/$(CUDA129_PACKAGE) debian/$(CUDA133_PACKAGE) \
 		debian/$(ROCM101_PACKAGE) debian/$(SYCL_PACKAGE) \
@@ -94,6 +101,13 @@ override_dh_auto_install:
 		--prefix=/usr \
 		--ignore-installed \
 		--root=$(CURDIR)/debian/$(CORE_PACKAGE)
+
+	# Validate the staged Python/C API before the expensive accelerator builds.
+	# Leave the source directory so Python cannot import its uninstalled package.
+	cd debian/$(CORE_PACKAGE) && \
+		env -u LLAMA_CPP_LIB_PATH -u LD_LIBRARY_PATH \
+		PYTHONPATH="$(CURDIR)/debian/$(CORE_PACKAGE)/usr/lib/python3/dist-packages" \
+		python3 -c 'from llama_cpp import Llama; print("Staged llama_cpp import passed")'
 
 	# Split dynamically loadable CPU/BLAS backends out of the common runtime.
 	mkdir -p debian/$(CPU_PACKAGE)/$(PYLIB_DIR)
