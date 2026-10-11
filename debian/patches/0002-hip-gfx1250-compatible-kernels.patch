@@ -4,7 +4,7 @@ Description: Use compatible HIP kernels for gfx1250
  arithmetic instead of unsupported FP16 dot2 assembly, and let hipBLAS use
  the hardware matrix units. Custom GGML gfx1250 WMMA kernels are not enabled.
 Author: ByCzech <byczech@malyjarda.cz>
-Origin: other, local Debian compatibility fix for vendored llama.cpp 0c1e570
+Origin: other, local Debian compatibility fix for vendored llama.cpp 4df29be and 0c1e570
 Forwarded: no
 Last-Update: 2026-10-11
 
@@ -20,16 +20,10 @@ index 50713c0..3220639 100644
  
  #define GGML_CUDA_CC_IS_AMD(cc)     (cc >= GGML_CUDA_CC_OFFSET_AMD)
  #define GGML_CUDA_CC_IS_RDNA(cc)    (cc >= GGML_CUDA_CC_RDNA1)
-@@ -90,7 +91,8 @@
- #define GGML_CUDA_CC_IS_RDNA3_0(cc) (cc >= GGML_CUDA_CC_RDNA3 && cc < GGML_CUDA_CC_RDNA3_5)
- #define GGML_CUDA_CC_IS_RDNA3_5(cc) (cc >= GGML_CUDA_CC_RDNA3_5 && cc < GGML_CUDA_CC_RDNA4)
- #define GGML_CUDA_CC_IS_RDNA3(cc)   (GGML_CUDA_CC_IS_RDNA3_0(cc) || GGML_CUDA_CC_IS_RDNA3_5(cc))
+@@ -93 +94,2 @@
 -#define GGML_CUDA_CC_IS_RDNA4(cc)   (cc >= GGML_CUDA_CC_RDNA4)
 +#define GGML_CUDA_CC_IS_GFX1250(cc) ((cc) == GGML_CUDA_CC_GFX1250)
 +#define GGML_CUDA_CC_IS_RDNA4(cc)   (cc >= GGML_CUDA_CC_RDNA4 && !GGML_CUDA_CC_IS_GFX1250(cc))
- #define GGML_CUDA_CC_IS_GCN_APU(cc) ((cc) == GGML_CUDA_CC_GFX909 || (cc) == GGML_CUDA_CC_GFX90C)
- #define GGML_CUDA_CC_IS_GCN(cc)     ((cc > GGML_CUDA_CC_OFFSET_AMD && cc < GGML_CUDA_CC_CDNA1) || GGML_CUDA_CC_IS_GCN_APU(cc))
- #define GGML_CUDA_CC_IS_CDNA(cc)    (!GGML_CUDA_CC_IS_GCN_APU(cc) && cc >= GGML_CUDA_CC_CDNA1 && cc < GGML_CUDA_CC_RDNA1)
 @@ -325,7 +327,7 @@ static bool fast_fp16_hardware_available(const int cc) {
  // To be used for feature selection of external libraries, e.g. cuBLAS.
  static bool fp16_mma_hardware_available(const int cc) {

@@ -1,3 +1,11 @@
+llama-cpp-python (0:0.3.36-6) stable; urgency=medium
+
+  * Apply the gfx1250 compatibility patch to vendored llama.cpp 4df29be too.
+  * Match the unique RDNA4 predicate without unrelated GCN/CDNA context,
+    preserving the GCN/CDNA predicates supplied by either upstream revision.
+
+ -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 02:48:00 +0200
+
 llama-cpp-python (0:0.3.36-5) stable; urgency=medium
 
   * Restore gfx1250 with a quilt patch for compatible HIP kernel dispatch.
