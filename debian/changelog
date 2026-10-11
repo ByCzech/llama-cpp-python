@@ -1,14 +1,9 @@
 llama-cpp-python (0:0.3.36-7) stable; urgency=medium
 
-  * Synchronize vendor/llama.cpp with the revision pinned by upstream 0.3.36
-    (0c1e57098bba43ac29e6e3b677cdceebdd22334f), restoring the C API expected
-    by the Python bindings.
-  * Reject headers without the required LoRA FILE API before building, and
-    import the staged runtime before compiling the separate GPU backends.
-  * Add the Python runtime dependencies needed by the staged import check
-    to Build-Depends.
+  * Build against the matching upstream llama.cpp revision and remove
+    the obsolete ROCm 7.14 alternatives file.
 
- -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 09:20:00 +0200
+ -- NemaChybu team APT archive <maintainers@nemachybu.cz>  Sun, 11 Oct 2026 10:15:34 +0200
 
 llama-cpp-python (0:0.3.36-6) stable; urgency=medium
 
