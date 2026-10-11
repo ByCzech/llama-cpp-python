@@ -1,0 +1,98 @@
+Description: Use compatible HIP kernels for gfx1250
+ Separate gfx1250 from the RDNA4 instruction paths in both device macros and
+ host dispatch. Keep native integer dot4 and wave32 tile kernels, use FP32
+ arithmetic instead of unsupported FP16 dot2 assembly, and let hipBLAS use
+ the hardware matrix units. Custom GGML gfx1250 WMMA kernels are not enabled.
+Author: ByCzech <byczech@malyjarda.cz>
+Origin: other, local Debian compatibility fix for vendored llama.cpp 0c1e570
+Forwarded: no
+Last-Update: 2026-10-11
+
+diff --git a/vendor/llama.cpp/ggml/src/ggml-cuda/common.cuh b/vendor/llama.cpp/ggml/src/ggml-cuda/common.cuh
+index 50713c0..3220639 100644
+--- a/vendor/llama.cpp/ggml/src/ggml-cuda/common.cuh
++++ b/vendor/llama.cpp/ggml/src/ggml-cuda/common.cuh
+@@ -82,6 +82,7 @@
+ #define GGML_CUDA_CC_RDNA3      (GGML_CUDA_CC_OFFSET_AMD + 0x1100) // RX 7000, minimum for WMMA
+ #define GGML_CUDA_CC_RDNA3_5    (GGML_CUDA_CC_OFFSET_AMD + 0x1150) // AI 370, AI Max 395 laptops.
+ #define GGML_CUDA_CC_RDNA4      (GGML_CUDA_CC_OFFSET_AMD + 0x1200) // RX 9000
++#define GGML_CUDA_CC_GFX1250    (GGML_CUDA_CC_OFFSET_AMD + 0x1250)
+ 
+ #define GGML_CUDA_CC_IS_AMD(cc)     (cc >= GGML_CUDA_CC_OFFSET_AMD)
+ #define GGML_CUDA_CC_IS_RDNA(cc)    (cc >= GGML_CUDA_CC_RDNA1)
+@@ -90,7 +91,8 @@
+ #define GGML_CUDA_CC_IS_RDNA3_0(cc) (cc >= GGML_CUDA_CC_RDNA3 && cc < GGML_CUDA_CC_RDNA3_5)
+ #define GGML_CUDA_CC_IS_RDNA3_5(cc) (cc >= GGML_CUDA_CC_RDNA3_5 && cc < GGML_CUDA_CC_RDNA4)
+ #define GGML_CUDA_CC_IS_RDNA3(cc)   (GGML_CUDA_CC_IS_RDNA3_0(cc) || GGML_CUDA_CC_IS_RDNA3_5(cc))
+-#define GGML_CUDA_CC_IS_RDNA4(cc)   (cc >= GGML_CUDA_CC_RDNA4)
++#define GGML_CUDA_CC_IS_GFX1250(cc) ((cc) == GGML_CUDA_CC_GFX1250)
++#define GGML_CUDA_CC_IS_RDNA4(cc)   (cc >= GGML_CUDA_CC_RDNA4 && !GGML_CUDA_CC_IS_GFX1250(cc))
+ #define GGML_CUDA_CC_IS_GCN_APU(cc) ((cc) == GGML_CUDA_CC_GFX909 || (cc) == GGML_CUDA_CC_GFX90C)
+ #define GGML_CUDA_CC_IS_GCN(cc)     ((cc > GGML_CUDA_CC_OFFSET_AMD && cc < GGML_CUDA_CC_CDNA1) || GGML_CUDA_CC_IS_GCN_APU(cc))
+ #define GGML_CUDA_CC_IS_CDNA(cc)    (!GGML_CUDA_CC_IS_GCN_APU(cc) && cc >= GGML_CUDA_CC_CDNA1 && cc < GGML_CUDA_CC_RDNA1)
+@@ -325,7 +327,7 @@ static bool fast_fp16_hardware_available(const int cc) {
+ // To be used for feature selection of external libraries, e.g. cuBLAS.
+ static bool fp16_mma_hardware_available(const int cc) {
+     return (GGML_CUDA_CC_IS_NVIDIA(cc) && cc >= GGML_CUDA_CC_VOLTA) ||
+-        GGML_CUDA_CC_IS_CDNA(cc) || GGML_CUDA_CC_IS_RDNA3(cc) || GGML_CUDA_CC_IS_RDNA4(cc) ||
++        GGML_CUDA_CC_IS_CDNA(cc) || GGML_CUDA_CC_IS_RDNA3(cc) || GGML_CUDA_CC_IS_RDNA4(cc) || GGML_CUDA_CC_IS_GFX1250(cc) ||
+         (GGML_CUDA_CC_IS_MTHREADS(cc) && cc >= GGML_CUDA_CC_QY2);
+ }
+ 
+@@ -712,7 +714,7 @@ static __device__ __forceinline__ int ggml_cuda_dp4a(const int a, const int b, i
+ #if defined(GGML_USE_HIP)
+ #if defined(CDNA) || defined(RDNA2) || defined(__gfx906__)
+     c = __builtin_amdgcn_sdot4(a, b, c, false);
+-#elif defined(RDNA3) || defined(RDNA4)
++#elif defined(RDNA3) || defined(RDNA4) || defined(GFX1250)
+     c = __builtin_amdgcn_sudot4( true, a, true, b, c, false);
+ #elif defined(RDNA1) || defined(__gfx900__)
+     int tmp1;
+@@ -765,7 +767,7 @@ static __device__ __forceinline__ void ggml_cuda_mad(float & acc, const half2 v,
+ #ifdef V_DOT2_F32_F16_AVAILABLE
+     asm volatile("v_dot2_f32_f16 %0, %1, %2, %0" : "+v"(acc) : "v"(v), "v"(u));
+ #else
+-#ifdef FAST_FP16_AVAILABLE
++#if defined(FAST_FP16_AVAILABLE) && !defined(GFX1250)
+     const float2 tmp = __half22float2(v*u);
+     acc += tmp.x + tmp.y;
+ #else
+@@ -773,7 +775,7 @@ static __device__ __forceinline__ void ggml_cuda_mad(float & acc, const half2 v,
+     const float2 tmpu = __half22float2(u);
+     acc += tmpv.x * tmpu.x;
+     acc += tmpv.y * tmpu.y;
+-#endif // FAST_FP16_AVAILABLE
++#endif // defined(FAST_FP16_AVAILABLE) && !defined(GFX1250)
+ #endif // V_DOT2_F32_F16_AVAILABLE
+ }
+ 
+diff --git a/vendor/llama.cpp/ggml/src/ggml-cuda/vendors/hip.h b/vendor/llama.cpp/ggml/src/ggml-cuda/vendors/hip.h
+index da7e3da..e1f26ee 100644
+--- a/vendor/llama.cpp/ggml/src/ggml-cuda/vendors/hip.h
++++ b/vendor/llama.cpp/ggml/src/ggml-cuda/vendors/hip.h
+@@ -212,9 +212,11 @@
+ #define CDNA // For the entire family
+ #endif // defined(CDNA4) || defined(CDNA3) || defined(CDNA2) || defined(CDNA1)
+ 
+-#if defined(__GFX12__)
++#if defined(__gfx1250__)
++#define GFX1250
++#elif defined(__GFX12__)
+ #define RDNA4
+-#endif // defined(__GFX12__)
++#endif // defined(__gfx1250__)
+ 
+ #if defined(__GFX11__)
+ #define RDNA3
+@@ -237,9 +239,9 @@
+ #define RDNA1
+ #endif // defined(__gfx1010__) || defined(__gfx1012__)
+ 
+-#if defined(RDNA4) || defined(RDNA3) || defined(RDNA2) || defined(RDNA1)
++#if defined(GFX1250) || defined(RDNA4) || defined(RDNA3) || defined(RDNA2) || defined(RDNA1)
+ #define RDNA // For the entire family
+-#endif // defined(RDNA4) || defined(RDNA3) || defined(RDNA2) || defined(RDNA1)
++#endif // defined(GFX1250) || defined(RDNA4) || defined(RDNA3) || defined(RDNA2) || defined(RDNA1)
+ 
+ #ifndef __has_builtin
+     #define __has_builtin(x) 0

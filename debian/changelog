@@ -1,3 +1,12 @@
+llama-cpp-python (0:0.3.36-5) stable; urgency=medium
+
+  * Restore gfx1250 with a quilt patch for compatible HIP kernel dispatch.
+  * Keep native dot4 and GPU flash attention tile/vector kernels on gfx1250.
+  * Use FP32 arithmetic for its FP16 dot2 fallback; retain hipBLAS hardware
+    matrix support without enabling incompatible custom GGML WMMA kernels.
+
+ -- ByCzech <byczech@malyjarda.cz>  Sun, 11 Oct 2026 02:20:00 +0200
+
 llama-cpp-python (0:0.3.36-4) stable; urgency=medium
 
   * Exclude gfx1250 from the ROCm 10.1 backend: the vendored GGML uses
